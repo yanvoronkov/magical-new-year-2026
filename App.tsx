@@ -175,41 +175,54 @@ const App: React.FC = () => {
 
     console.log('🎭 Начинаем магию!', { greeting, audioTrigger });
 
-    if (!audioCtxRef.current) {
-      audioCtxRef.current = new (window.AudioContext ||
-        (window as any).webkitAudioContext)({ sampleRate: 24000 });
-    }
+    try {
+      // Создаем AudioContext ЗДЕСЬ, после клика пользователя (для мобильных!)
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext ||
+          (window as any).webkitAudioContext)({ sampleRate: 24000 });
+        console.log('🔊 AudioContext создан:', audioCtxRef.current.state);
+      }
 
-    const ctx = audioCtxRef.current;
-    if (ctx.state === "suspended") {
-      await ctx.resume();
-      console.log('🔊 AudioContext resumed');
-    }
-
-    playBackgroundMusic();
-    console.log('🎵 Фоновая музыка запущена');
-
-    if (greeting.audioBase64) {
-      console.log('🎤 Начинаем воспроизведение голоса, длительность:', greeting.duration);
-      const audioBytes = ai.decodeBase64(greeting.audioBase64);
-      const audioBuffer = await ai.decodeAudioData(audioBytes, ctx);
-      const source = ctx.createBufferSource();
-      source.buffer = audioBuffer;
+      const ctx = audioCtxRef.current;
       
-      // Увеличиваем громкость голоса
-      const voiceGain = ctx.createGain();
-      voiceGain.gain.setValueAtTime(1.5, ctx.currentTime); // Голос громче (150%)
-      source.connect(voiceGain);
-      voiceGain.connect(ctx.destination);
-      
-      source.start();
-      console.log('✅ Голос запущен');
-    } else {
-      console.warn('⚠️ Нет аудио данных для воспроизведения');
-    }
+      // Обязательно resume для мобильных
+      if (ctx.state === "suspended") {
+        await ctx.resume();
+        console.log('🔊 AudioContext resumed:', ctx.state);
+      }
 
-    setAudioTrigger(true);
-    console.log('🎬 AudioTrigger установлен в true');
+      // Небольшая задержка для мобильных браузеров
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      playBackgroundMusic();
+      console.log('🎵 Фоновая музыка запущена');
+
+      if (greeting.audioBase64) {
+        console.log('🎤 Начинаем воспроизведение голоса, длительность:', greeting.duration);
+        const audioBytes = ai.decodeBase64(greeting.audioBase64);
+        const audioBuffer = await ai.decodeAudioData(audioBytes, ctx);
+        const source = ctx.createBufferSource();
+        source.buffer = audioBuffer;
+        
+        // Увеличиваем громкость голоса
+        const voiceGain = ctx.createGain();
+        voiceGain.gain.setValueAtTime(1.5, ctx.currentTime); // Голос громче (150%)
+        source.connect(voiceGain);
+        voiceGain.connect(ctx.destination);
+        
+        source.start();
+        console.log('✅ Голос запущен');
+      } else {
+        console.warn('⚠️ Нет аудио данных для воспроизведения');
+      }
+
+      setAudioTrigger(true);
+      console.log('🎬 AudioTrigger установлен в true');
+    } catch (error) {
+      console.error('❌ Ошибка воспроизведения звука:', error);
+      // Показываем текст даже если звук не работает
+      setAudioTrigger(true);
+    }
   }, [greeting, audioTrigger]);
 
   return (
