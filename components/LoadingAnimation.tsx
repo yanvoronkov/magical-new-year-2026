@@ -6,13 +6,13 @@ interface LoadingAnimationProps {
 }
 
 const LoadingAnimation: React.FC<LoadingAnimationProps> = ({ 
-  message = 'Пишем для вас волшебные строки...' 
+  message = 'Пишем для вас волшебные строки, подождите...' 
 }) => {
   return (
-    <div className="my-auto text-center space-y-8 p-12 bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl">
+    <div className="my-auto text-center space-y-6 p-6 md:p-12 bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl max-w-md mx-auto w-full">
       <div className="flex flex-col items-center space-y-6">
         {/* Танцующие новогодние персонажи */}
-        <div className="flex items-end justify-center gap-4 h-32">
+        <div className="flex items-end justify-center gap-2 md:gap-4 h-24 md:h-32 overflow-hidden">
           {[
             { emoji: '🎅', delay: '0s', name: 'santa' },
             { emoji: '🎄', delay: '0.2s', name: 'tree' },
@@ -22,7 +22,7 @@ const LoadingAnimation: React.FC<LoadingAnimationProps> = ({
           ].map((char, i) => (
             <div
               key={i}
-              className="text-6xl animate-bounce"
+              className="text-4xl md:text-6xl animate-bounce"
               style={{
                 animationDelay: char.delay,
                 animationDuration: '1s',
@@ -32,9 +32,27 @@ const LoadingAnimation: React.FC<LoadingAnimationProps> = ({
             </div>
           ))}
         </div>
-        <p className="text-3xl text-blue-100 font-handwriting italic animate-pulse">
+        
+        <p className="text-2xl md:text-3xl text-blue-100 font-handwriting italic animate-pulse px-4">
           {message}
         </p>
+
+        {/* Видео с танцующей лошадью */}
+        <div className="flex justify-center pt-2">
+          <div className="relative rounded-2xl overflow-hidden border-4 border-yellow-500 shadow-[0_8px_20px_rgba(234,179,8,0.4)] transform transition-all hover:scale-105 hover:shadow-[0_12px_30px_rgba(234,179,8,0.6)] w-48 md:w-64 aspect-square">
+            {/* Декоративная внутренняя рамка */}
+            <div className="absolute inset-0 border-2 border-white/20 pointer-events-none z-10 rounded-xl"></div>
+            
+            <video
+              src="/videos/horse_dance.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

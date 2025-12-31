@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef } from "react";
 import { AppState, GreetingData } from "./types";
-import * as gemini from "./services/geminiService";
+import * as ai from "./services/aiService";
 import Snowfall from "./components/Snowfall";
 import Postcard from "./components/Postcard";
 import LoadingAnimation from "./components/LoadingAnimation";
@@ -122,7 +122,7 @@ const App: React.FC = () => {
       const source = ctx.createBufferSource();
       source.buffer = backgroundBufferRef.current;
       const gainNode = ctx.createGain();
-      gainNode.gain.setValueAtTime(0.4, ctx.currentTime);
+      gainNode.gain.setValueAtTime(0.1, ctx.currentTime); // Музыка еще тише (10%)
       source.connect(gainNode);
       gainNode.connect(ctx.destination);
       source.loop = true;
@@ -140,10 +140,10 @@ const App: React.FC = () => {
     setState(AppState.LOADING);
     try {
       const loadMusicPromise = loadBackgroundMusic();
-      const textPromise = gemini.generateGreetingText(name);
+      const textPromise = ai.generateGreetingText(name);
 
       const [text] = await Promise.all([textPromise, loadMusicPromise]);
-      const audioData = await gemini.generateGreetingAudio(text);
+      const audioData = await ai.generateGreetingAudio(text);
 
       let duration = 5;
       if (audioData) {
@@ -151,8 +151,8 @@ const App: React.FC = () => {
           audioCtxRef.current = new (window.AudioContext ||
             (window as any).webkitAudioContext)({ sampleRate: 24000 });
         }
-        const audioBytes = gemini.decodeBase64(audioData);
-        const buffer = await gemini.decodeAudioData(
+        const audioBytes = ai.decodeBase64(audioData);
+        const buffer = await ai.decodeAudioData(
           audioBytes,
           audioCtxRef.current
         );
@@ -173,6 +173,8 @@ const App: React.FC = () => {
   const handleStartMagic = useCallback(async () => {
     if (!greeting || audioTrigger) return;
 
+    console.log('🎭 Начинаем магию!', { greeting, audioTrigger });
+
     if (!audioCtxRef.current) {
       audioCtxRef.current = new (window.AudioContext ||
         (window as any).webkitAudioContext)({ sampleRate: 24000 });
@@ -181,20 +183,33 @@ const App: React.FC = () => {
     const ctx = audioCtxRef.current;
     if (ctx.state === "suspended") {
       await ctx.resume();
+      console.log('🔊 AudioContext resumed');
     }
 
     playBackgroundMusic();
+    console.log('🎵 Фоновая музыка запущена');
 
     if (greeting.audioBase64) {
-      const audioBytes = gemini.decodeBase64(greeting.audioBase64);
-      const audioBuffer = await gemini.decodeAudioData(audioBytes, ctx);
+      console.log('🎤 Начинаем воспроизведение голоса, длительность:', greeting.duration);
+      const audioBytes = ai.decodeBase64(greeting.audioBase64);
+      const audioBuffer = await ai.decodeAudioData(audioBytes, ctx);
       const source = ctx.createBufferSource();
       source.buffer = audioBuffer;
-      source.connect(ctx.destination);
+      
+      // Увеличиваем громкость голоса
+      const voiceGain = ctx.createGain();
+      voiceGain.gain.setValueAtTime(1.5, ctx.currentTime); // Голос громче (150%)
+      source.connect(voiceGain);
+      voiceGain.connect(ctx.destination);
+      
       source.start();
+      console.log('✅ Голос запущен');
+    } else {
+      console.warn('⚠️ Нет аудио данных для воспроизведения');
     }
 
     setAudioTrigger(true);
+    console.log('🎬 AudioTrigger установлен в true');
   }, [greeting, audioTrigger]);
 
   return (
@@ -205,28 +220,29 @@ const App: React.FC = () => {
 
       <main className="z-10 w-full max-w-4xl flex flex-col items-center">
         {state === AppState.IDLE && (
-          <div className="my-auto text-center animate-fade-in space-y-8 bg-white/5 backdrop-blur-lg p-10 rounded-3xl border border-white/10 shadow-2xl transition-all hover:bg-white/10">
-            <h1 className="text-5xl md:text-7xl font-elegant text-yellow-500 mb-4 drop-shadow-[0_2px_10px_rgba(234,179,8,0.5)]">
+          <div className="my-auto text-center animate-fade-in space-y-4 md:space-y-8 bg-white/5 backdrop-blur-lg p-6 md:p-10 rounded-3xl border border-white/10 shadow-2xl transition-all hover:bg-white/10">
+            <h1 className="text-4xl md:text-7xl font-elegant text-yellow-500 mb-2 md:mb-4 drop-shadow-[0_2px_10px_rgba(234,179,8,0.5)]">
               Новогоднее Волшебство 2026
             </h1>
-            <p className="text-xl text-blue-100 font-light max-w-md mx-auto">
-              Позвольте волшебству коснуться вашего сердца.
+            <p className="text-base md:text-xl text-blue-100 font-light max-w-md mx-auto px-4">
+              Получите персональное новогоднее поздравление.
             </p>
+
             <form
               onSubmit={startCelebration}
-              className="flex flex-col gap-6 items-center"
+              className="flex flex-col gap-4 md:gap-6 items-center w-full"
             >
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Как вас зовут?"
-                className="w-full max-w-sm px-8 py-5 rounded-full bg-white/10 border-2 border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-yellow-500 text-2xl text-center transition-all shadow-inner"
+                className="w-full max-w-sm px-6 md:px-8 py-3 md:py-5 rounded-full bg-white/10 border-2 border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-yellow-500 text-lg md:text-2xl text-center transition-all shadow-inner"
                 required
               />
               <button
                 type="submit"
-                className="px-12 py-5 bg-[#c41e3a] hover:bg-[#e62e4d] text-white rounded-full font-bold text-2xl shadow-[0_10px_20px_-5px_rgba(196,30,58,0.5)] transform transition-all hover:scale-105 active:scale-95 flex items-center gap-3"
+                className="w-full max-w-sm px-8 md:px-12 py-3 md:py-5 bg-[#c41e3a] hover:bg-[#e62e4d] text-white rounded-full font-bold text-lg md:text-2xl shadow-[0_10px_20px_-5px_rgba(196,30,58,0.5)] transform transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2 md:gap-3"
               >
                 Создать открытку ✨
               </button>
@@ -241,16 +257,75 @@ const App: React.FC = () => {
         {state === AppState.CELEBRATING && greeting && (
           <div className="w-full flex flex-col items-center space-y-8">
             {!audioTrigger ? (
-              <div className="my-auto text-center bg-white/10 backdrop-blur-md p-8 rounded-2xl border border-white/20 animate-fade-in">
-                <p className="text-2xl text-white mb-6 font-light">
-                  Ваше поздравление готово!
-                </p>
-                <button
-                  onClick={handleStartMagic}
-                  className="px-10 py-5 bg-yellow-500 hover:bg-yellow-400 text-[#0c0f1a] rounded-full font-black text-2xl shadow-xl transform transition-all hover:scale-110 flex items-center gap-3"
-                >
-                  Открыть магию 🪄
-                </button>
+              <div className="my-auto text-center max-w-lg mx-auto animate-fade-in">
+                {/* Праздничный контейнер */}
+                <div className="relative bg-gradient-to-br from-white/10 via-white/5 to-white/10 backdrop-blur-xl p-8 md:p-12 rounded-3xl border-2 border-white/20 shadow-2xl overflow-hidden">
+                  {/* Блики и эффекты */}
+                  <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+                    {/* Угловые декоративные элементы */}
+                    <div className="absolute top-4 left-4 text-yellow-400 text-2xl animate-pulse">✨</div>
+                    <div className="absolute top-4 right-4 text-red-400 text-2xl animate-pulse" style={{ animationDelay: '0.5s' }}>🎄</div>
+                    <div className="absolute bottom-4 left-4 text-green-400 text-2xl animate-pulse" style={{ animationDelay: '1s' }}>⛄</div>
+                    <div className="absolute bottom-4 right-4 text-yellow-400 text-2xl animate-pulse" style={{ animationDelay: '0.3s' }}>⭐</div>
+                    
+                    {/* Падающие снежинки */}
+                    {[...Array(6)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="absolute text-white/40 text-sm"
+                        style={{
+                          left: `${20 + i * 15}%`,
+                          animation: `drift ${4 + Math.random() * 2}s linear infinite`,
+                          animationDelay: `${i * 0.5}s`,
+                        }}
+                      >
+                        ❄
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Основной контент */}
+                  <div className="relative z-10 space-y-6">
+                    {/* Иконка успеха */}
+                    <div className="flex justify-center">
+                      <div className="text-7xl animate-bounce">
+                        🎁
+                      </div>
+                    </div>
+
+                    {/* Заголовок */}
+                    <h2 className="text-3xl md:text-4xl font-elegant text-yellow-400 drop-shadow-[0_2px_10px_rgba(234,179,8,0.8)] mb-2">
+                      Ваше поздравление готово!
+                    </h2>
+                    
+                    {/* Подзаголовок */}
+                    <p className="text-base md:text-lg text-blue-100/80 font-light max-w-sm mx-auto">
+                      Нажмите кнопку чтобы увидеть волшебство ✨
+                    </p>
+
+                    {/* Кнопка с эффектами */}
+                    <div className="pt-4">
+                      <button
+                        onClick={handleStartMagic}
+                        className="relative px-10 md:px-12 py-4 md:py-5 bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-400 hover:to-yellow-300 text-[#0c0f1a] rounded-full font-black text-xl md:text-2xl shadow-[0_10px_40px_rgba(234,179,8,0.6)] transform transition-all hover:scale-110 active:scale-95 inline-flex items-center justify-center gap-3 animate-pulse hover:animate-none"
+                      >
+                        {/* Светящийся эффект */}
+                        <div className="absolute inset-0 rounded-full bg-yellow-300/30 blur-xl"></div>
+                        <span className="relative">Открыть</span>
+                        <span className="relative text-2xl">🪄</span>
+                      </button>
+                    </div>
+
+                    {/* Дополнительный декор */}
+                    <div className="flex justify-center gap-3 pt-4 opacity-60">
+                      <span className="text-2xl animate-bounce" style={{ animationDelay: '0s' }}>🌟</span>
+                      <span className="text-2xl animate-bounce" style={{ animationDelay: '0.2s' }}>✨</span>
+                      <span className="text-2xl animate-bounce" style={{ animationDelay: '0.4s' }}>🎉</span>
+                      <span className="text-2xl animate-bounce" style={{ animationDelay: '0.6s' }}>✨</span>
+                      <span className="text-2xl animate-bounce" style={{ animationDelay: '0.8s' }}>🌟</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="w-full flex flex-col items-center animate-scale-up">

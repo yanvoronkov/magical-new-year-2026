@@ -16,11 +16,15 @@ const Postcard: React.FC<PostcardProps> = ({ text, duration, startTrigger, onFin
   useEffect(() => {
     if (!startTrigger) return;
     
+    console.log('📝  Начинаем печать текста:', { textLength: text.length, duration });
+    
     setIsTyping(true);
     // Calculate typing speed based on audio duration
     // We want the typing to finish slightly before the voice ends for a natural feel
     const typingDurationMs = (duration * 0.9) * 1000;
     const intervalTime = typingDurationMs / text.length;
+    
+    console.log(`⏱️ Длительность печати: ${typingDurationMs}ms, интервал: ${intervalTime}ms`);
 
     const interval = setInterval(() => {
       if (indexRef.current < text.length) {
@@ -29,6 +33,7 @@ const Postcard: React.FC<PostcardProps> = ({ text, duration, startTrigger, onFin
       } else {
         setIsTyping(false);
         clearInterval(interval);
+        console.log('✅ Печать завершена');
         onFinished();
       }
     }, intervalTime);
@@ -69,7 +74,7 @@ const Postcard: React.FC<PostcardProps> = ({ text, duration, startTrigger, onFin
         </div>
 
         <div className="mt-auto pt-4 border-t border-gray-300 text-right font-elegant text-2xl text-[#c41e3a]">
-          Ваш магический Gemini AI ✨
+         
         </div>
       </div>
     </div>
@@ -77,5 +82,3 @@ const Postcard: React.FC<PostcardProps> = ({ text, duration, startTrigger, onFin
 };
 
 export default Postcard;
-
-

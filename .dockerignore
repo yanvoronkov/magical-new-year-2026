@@ -1,0 +1,42 @@
+# Зависимости
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Production build
+dist
+dist-ssr
+
+# Локальные файлы окружения
+.env.local
+.env
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Документация и прочее
+README.md
+.agent
+*.md
+!AI_SETUP.md
+
+# Музыкальные файлы (большие)
+public/music/*.mp3
+
+# Логи
+logs
+*.log
