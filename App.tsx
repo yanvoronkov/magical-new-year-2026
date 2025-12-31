@@ -114,24 +114,49 @@ const App: React.FC = () => {
     }
   };
 
-  const playBackgroundMusic = () => {
-    if (!audioCtxRef.current) return;
-    const ctx = audioCtxRef.current;
+   // Воспроизведение фоновой музыки
+  const playBackgroundMusic = useCallback(() => {
+    if (backgroundSourceRef.current) return; // Уже играет
 
-    if (backgroundBufferRef.current) {
-      const source = ctx.createBufferSource();
-      source.buffer = backgroundBufferRef.current;
-      const gainNode = ctx.createGain();
-      gainNode.gain.setValueAtTime(0.1, ctx.currentTime); // Музыка еще тише (10%)
-      source.connect(gainNode);
-      gainNode.connect(ctx.destination);
-      source.loop = true;
-      source.start(0);
-      backgroundSourceRef.current = source;
-    } else {
-      playProceduralMusic();
+    const ctx = audioCtxRef.current;
+    if (!ctx) return;
+
+    if (!backgroundBufferRef.current) {
+      console.warn('⚠️ Фоновая музыка еще не загружена');
+      return;
     }
-  };
+
+    // Для мобильных используем HTML5 Audio как fallback
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      console.log('📱 Мобильное устройство - используем HTML5 Audio для музыки');
+      const audio = new Audio('/music/jingle-bells.mp3');
+      audio.volume = 0.1; // Тихая музыка
+      audio.loop = true;
+      audio.play().then(() => {
+        console.log('✅ Мобильное аудио запущено');
+      }).catch(err => {
+        console.warn('⚠️ Не удалось запустить мобильное аудио:', err);
+      });
+    } else {
+      // Desktop - используем Web Audio API
+      try {
+        const source = ctx.createBufferSource();
+        source.buffer = backgroundBufferRef.current;
+        const gainNode = ctx.createGain();
+        gainNode.gain.setValueAtTime(0.1, ctx.currentTime); // Музыка еще тише (10%)
+        source.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        source.loop = true;
+        source.start(0);
+        backgroundSourceRef.current = source;
+        console.log('✅ Фоновая музыка запущена (Web Audio API)');
+      } catch (error) {
+        console.error('❌ Ошибка воспроизведения фоновой музыки:', error);
+      }
+    }
+  }, []);
 
   const startCelebration = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -199,19 +224,44 @@ const App: React.FC = () => {
 
       if (greeting.audioBase64) {
         console.log('🎤 Начинаем воспроизведение голоса, длительность:', greeting.duration);
-        const audioBytes = ai.decodeBase64(greeting.audioBase64);
-        const audioBuffer = await ai.decodeAudioData(audioBytes, ctx);
-        const source = ctx.createBufferSource();
-        source.buffer = audioBuffer;
         
-        // Увеличиваем громкость голоса
-        const voiceGain = ctx.createGain();
-        voiceGain.gain.setValueAtTime(1.5, ctx.currentTime); // Голос громче (150%)
-        source.connect(voiceGain);
-        voiceGain.connect(ctx.destination);
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         
-        source.start();
-        console.log('✅ Голос запущен');
+        if (isMobile) {
+          // Мобильный fallback - используем HTML5 Audio
+          console.log('📱 Используем HTML5 Audio для голоса');
+          try {
+            const audioBytes = ai.decodeBase64(greeting.audioBase64);
+            const blob = new Blob([audioBytes], { type: 'audio/mp3' });
+            const url = URL.createObjectURL(blob);
+            const audio = new Audio(url);
+            audio.volume = 1.0;
+            audio.play().then(() => {
+              console.log('✅ Голос запущен (HTML5 Audio)');
+            }).catch(err => {
+              console.error('❌ Ошибка воспроизведения голоса:', err);
+            });
+            // Очищаем URL после воспроизведения
+            audio.onended = () => URL.revokeObjectURL(url);
+          } catch (error) {
+            console.error('❌ Ошибка создания audio blob:', error);
+          }
+        } else {
+          // Desktop - используем Web Audio API
+          const audioBytes = ai.decodeBase64(greeting.audioBase64);
+          const audioBuffer = await ai.decodeAudioData(audioBytes, ctx);
+          const source = ctx.createBufferSource();
+          source.buffer = audioBuffer;
+          
+          // Увеличиваем громкость голоса
+          const voiceGain = ctx.createGain();
+          voiceGain.gain.setValueAtTime(1.5, ctx.currentTime); // Голос громче (150%)
+          source.connect(voiceGain);
+          voiceGain.connect(ctx.destination);
+          
+          source.start();
+          console.log('✅ Голос запущен (Web Audio API)');
+        }
       } else {
         console.warn('⚠️ Нет аудио данных для воспроизведения');
       }
