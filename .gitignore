@@ -25,7 +25,6 @@ dist-ssr
 *.sln
 *.sw?
 
-# Music files (large files, download separately)
-public/music/*.mp3
+# Music files - small files can be committed
 !public/music/README.md
 
