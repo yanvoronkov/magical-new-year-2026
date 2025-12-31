@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const fetch = require('node-fetch'); // node-fetch v2 поддерживает agent
 const { HttpsProxyAgent } = require('https-proxy-agent');
 
 const app = express();
