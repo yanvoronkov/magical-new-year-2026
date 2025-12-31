@@ -2,10 +2,8 @@
 
 import { AI_CONFIG } from './aiConfig';
 
-// API endpoint - в production это будет ваш сервер
-const API_BASE_URL = (import.meta as any).env?.PROD 
-  ? '/api' // В production запросы идут на тот же домен
-  : 'http://localhost:3001/api'; // В development на локальный сервер
+// API endpoint из переменной окружения (можно настроить в EasyPanel)
+const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001/api';
 
 // Генерация текста поздравления через наш API
 export const generateGreetingText = async (userName: string): Promise<string> => {
