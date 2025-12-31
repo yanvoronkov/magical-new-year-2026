@@ -1,0 +1,7 @@
+{
+  "name": "Magical New Year 2026",
+  "description": "A personalized New Year 2026 greeting application featuring AI-generated wishes, handwriting animation, and voice narration.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
