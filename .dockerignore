@@ -34,9 +34,6 @@ README.md
 *.md
 !AI_SETUP.md
 
-# Музыкальные файлы (большие)
-public/music/*.mp3
-
 # Логи
 logs
 *.log

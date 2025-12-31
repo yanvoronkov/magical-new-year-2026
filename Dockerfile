@@ -5,6 +5,14 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+# Объявляем build argument для API ключа
+ARG VITE_OPENAI_API_KEY
+ARG VITE_GEMINI_API_KEY
+
+# Устанавливаем переменные окружения для Vite
+ENV VITE_OPENAI_API_KEY=$VITE_OPENAI_API_KEY
+ENV VITE_GEMINI_API_KEY=$VITE_GEMINI_API_KEY
+
 # Копируем package файлы
 COPY package*.json ./
 
