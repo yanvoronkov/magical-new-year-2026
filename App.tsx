@@ -276,12 +276,12 @@ const App: React.FC = () => {
   }, [greeting, audioTrigger]);
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col items-center p-4 py-12 md:py-24">
+    <div className="relative h-screen w-full flex flex-col items-center justify-center p-4 overflow-y-auto">
       <Snowfall />
 
       <div className="fixed top-0 left-0 w-full h-full bg-gradient-to-b from-[#0c1421] via-[#1a2b4a] to-[#0c1421] -z-10"></div>
 
-      <main className="z-10 w-full max-w-4xl flex flex-col items-center">
+      <main className="z-10 w-full max-w-4xl flex flex-col items-center justify-center my-auto">
         {state === AppState.IDLE && (
           <div className="my-auto text-center animate-fade-in space-y-4 md:space-y-8 bg-white/5 backdrop-blur-lg p-6 md:p-10 rounded-3xl border border-white/10 shadow-2xl transition-all hover:bg-white/10">
             <h1 className="text-4xl md:text-7xl font-elegant text-yellow-500 mb-2 md:mb-4 drop-shadow-[0_2px_10px_rgba(234,179,8,0.5)]">

@@ -42,13 +42,18 @@ const Postcard: React.FC<PostcardProps> = ({ text, duration, startTrigger, onFin
   }, [text, duration, startTrigger, onFinished]);
 
   return (
-    <div className="relative w-full max-w-2xl min-h-[450px] h-auto bg-[#fdf5e6] rounded-xl shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] p-8 md:p-12 overflow-hidden border-8 border-[#c41e3a] transform transition-all duration-700 flex flex-col">
+    <div className="relative w-full max-w-2xl min-h-[450px] h-auto bg-[#fdf5e6] rounded-xl shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] p-4 md:p-12 overflow-hidden border-8 border-[#c41e3a] transform transition-all duration-700 flex flex-col">
       {/* Texture overlay for paper feel */}
       <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')]"></div>
       
-      {/* Postcard Background Elements */}
-      <div className="absolute top-4 right-4 w-20 h-24 border-2 border-dashed border-gray-400 opacity-20"></div>
-      <div className="absolute top-8 right-8 w-12 h-16 bg-[#c41e3a] opacity-5 rounded-sm flex items-center justify-center text-[#c41e3a] text-xs font-bold">2026</div>
+      {/* Марка-стикер в правом верхнем углу (повернутая) */}
+      <div className="absolute top-2 right-2 md:top-4 md:right-4 w-16 h-20 md:w-20 md:h-24 transform rotate-12 z-20">
+        <img 
+          src="/stikers/sticker1.png" 
+          alt="Новогодняя марка" 
+          className="w-full h-full object-contain drop-shadow-lg"
+        />
+      </div>
       
       {/* Decorative Tree */}
       <div className="absolute bottom-6 right-6 opacity-30 pointer-events-none scale-125">
@@ -62,12 +67,14 @@ const Postcard: React.FC<PostcardProps> = ({ text, duration, startTrigger, onFin
       </div>
 
       <div className="relative z-10 flex flex-col flex-grow">
-        <h2 className="text-4xl md:text-5xl font-elegant text-[#c41e3a] mb-8 text-center drop-shadow-sm">
+        {/* Заголовок - с отступом справа чтобы не накладывался на марку */}
+        <h2 className="text-3xl md:text-5xl font-elegant text-[#c41e3a] mb-4 md:mb-8 text-center drop-shadow-sm pr-16 md:pr-0">
           С Новым 2026 Годом!
         </h2>
         
-        <div className="flex-grow mb-12">
-          <p className="text-2xl md:text-3xl font-handwriting text-blue-900 leading-normal ink-bleed italic whitespace-pre-wrap">
+        {/* Текст поздравления с line-height 1.2 */}
+        <div className="flex-grow mb-8 md:mb-12">
+          <p className="text-xl md:text-3xl font-handwriting text-blue-900 ink-bleed italic whitespace-pre-wrap" style={{ lineHeight: '1.2' }}>
             {displayText}
             {isTyping && <span className="ml-1 border-r-2 border-blue-900 animate-pulse"></span>}
           </p>
