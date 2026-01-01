@@ -132,7 +132,7 @@ const App: React.FC = () => {
     if (isMobile) {
       console.log('📱 Мобильное устройство - используем HTML5 Audio для музыки');
       const audio = new Audio('/music/jingle-bells.mp3');
-      audio.volume = 0.1; // Тихая музыка
+      audio.volume = 0.05; // Тихая музыка (5%)
       audio.loop = true;
       audio.play().then(() => {
         console.log('✅ Мобильное аудио запущено');
@@ -145,7 +145,7 @@ const App: React.FC = () => {
         const source = ctx.createBufferSource();
         source.buffer = backgroundBufferRef.current;
         const gainNode = ctx.createGain();
-        gainNode.gain.setValueAtTime(0.1, ctx.currentTime); // Музыка еще тише (10%)
+        gainNode.gain.setValueAtTime(0.05, ctx.currentTime); // Музыка еще тише (5%)
         source.connect(gainNode);
         gainNode.connect(ctx.destination);
         source.loop = true;

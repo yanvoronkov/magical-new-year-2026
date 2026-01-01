@@ -67,7 +67,7 @@ const Postcard: React.FC<PostcardProps> = ({ text, duration, startTrigger, onFin
         </h2>
         
         <div className="flex-grow mb-12">
-          <p className="text-2xl md:text-3xl font-handwriting text-blue-900 leading-relaxed ink-bleed italic whitespace-pre-wrap">
+          <p className="text-2xl md:text-3xl font-handwriting text-blue-900 leading-normal ink-bleed italic whitespace-pre-wrap">
             {displayText}
             {isTyping && <span className="ml-1 border-r-2 border-blue-900 animate-pulse"></span>}
           </p>
