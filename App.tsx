@@ -276,7 +276,7 @@ const App: React.FC = () => {
   }, [greeting, audioTrigger]);
 
   return (
-    <div className="relative h-screen w-full flex flex-col items-center justify-center p-4 overflow-y-auto">
+    <div className="relative h-screen w-full flex flex-col items-center justify-center p-4 py-6 md:py-8 overflow-y-auto">
       <Snowfall />
 
       <div className="fixed top-0 left-0 w-full h-full bg-gradient-to-b from-[#0c1421] via-[#1a2b4a] to-[#0c1421] -z-10"></div>
