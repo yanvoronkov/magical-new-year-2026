@@ -42,12 +42,12 @@ const Postcard: React.FC<PostcardProps> = ({ text, duration, startTrigger, onFin
   }, [text, duration, startTrigger, onFinished]);
 
   return (
-    <div className="relative w-full max-w-2xl md:max-w-4xl mx-auto bg-[#fdf5e6] rounded-xl shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] p-6 md:p-8 overflow-hidden border-8 border-[#c41e3a] transform transition-all duration-700 flex flex-col">
+    <div className="relative w-full max-w-md md:max-w-2xl mx-auto bg-[#fdf5e6] rounded-xl shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] p-6 md:p-10 overflow-hidden border-8 border-[#c41e3a] transform transition-all duration-700 flex flex-col min-h-[500px] md:min-h-[600px]">
       {/* Texture overlay for paper feel */}
       <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')]"></div>
       
       {/* Марка-стикер в правом верхнем углу (повернутая) */}
-      <div className="absolute top-2 right-2 md:top-3 md:right-3 w-16 h-20 md:w-16 md:h-20 transform rotate-12 z-20">
+      <div className="absolute top-2 right-2 md:top-4 md:right-4 w-16 h-20 md:w-20 md:h-24 transform rotate-12 z-20">
         <img 
           src="/stikers/sticker1.png" 
           alt="Новогодняя марка" 
@@ -68,13 +68,13 @@ const Postcard: React.FC<PostcardProps> = ({ text, duration, startTrigger, onFin
 
       <div className="relative z-10 flex flex-col flex-grow">
         {/* Заголовок - с отступом справа чтобы не накладывался на марку */}
-        <h2 className="text-3xl md:text-3xl font-elegant text-[#c41e3a] mb-3 md:mb-4 text-center drop-shadow-sm pr-16 md:pr-20">
+        <h2 className="text-3xl md:text-4xl font-elegant text-[#c41e3a] mb-4 md:mb-6 text-center drop-shadow-sm pr-16 md:pr-24">
           С Новым 2026 Годом!
         </h2>
         
-        {/* Текст поздравления с line-height 1.2 */}
-        <div className="flex-grow mb-4 md:mb-5">
-          <p className="text-lg md:text-xl font-handwriting text-blue-900 ink-bleed italic whitespace-pre-wrap" style={{ lineHeight: '1.15' }}>
+        {/* Текст поздравления с line-height 1.15 */}
+        <div className="flex-grow mb-6 md:mb-8">
+          <p className="text-lg md:text-2xl font-handwriting text-blue-900 ink-bleed italic whitespace-pre-wrap" style={{ lineHeight: '1.25' }}>
             {displayText}
             {isTyping && <span className="ml-1 border-r-2 border-blue-900 animate-pulse"></span>}
           </p>
